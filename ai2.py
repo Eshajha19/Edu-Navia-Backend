@@ -8,13 +8,23 @@ import os
 
 app = FastAPI()
 
-# Allow frontend JS requests
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://127.0.0.1:5500",   # your local frontend
+    "http://localhost:5500",    # just in case
+    "https://edu-navia.netlify.app",  # deployed frontend
+    "*"  # optional: allow all origins (less secure)
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,  # or ["*"] for all
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Load trained models and encoders
 with open("models.pkl", "rb") as f:
@@ -85,3 +95,4 @@ async def recommend(request: Request):
     except Exception as e:
         print("Error:", e)
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
