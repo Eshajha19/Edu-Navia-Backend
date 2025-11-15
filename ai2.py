@@ -5,13 +5,11 @@ import pickle
 import pandas as pd
 
 app = FastAPI()
-
-# CORS setup
 origins = [
-    "http://127.0.0.1:5500",   # local frontend
-    "http://localhost:5500",    # local alternative
-    "https://edu-navia.netlify.app",  # deployed frontend
-    "*"  # allow all origins
+    "http://127.0.0.1:5500/static/html",       # local frontend
+    "http://localhost:5500/static/html",        # local fallback
+    "https://edunaviaa.netlify.app",# deployed frontend
+    "*"                             # optional, allows all origins
 ]
 
 app.add_middleware(
@@ -21,6 +19,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Load trained models and encoders
 with open("models.pkl", "rb") as f:
@@ -72,4 +71,5 @@ async def recommend(request: Request):
     except Exception as e:
         print("Error:", e)
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
