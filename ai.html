@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduNavia Recommendation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Reset & base */
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+body { 
+    background: linear-gradient(135deg, #abede3, #b5dac4); 
+    min-height:100vh; 
+    display:flex; 
+    justify-content:center; 
+    align-items:center; 
+    padding:20px; 
+}
+
+/* Container */
+.container { 
+  background:#fff; 
+  border-radius:25px; 
+  padding:40px; 
+  max-width:600px; 
+  width:100%; 
+  box-shadow:0 20px 50px rgba(0,0,0,0.2); 
+  transition:0.3s ease; 
+}
+.container:hover { transform: translateY(-5px); }
+
+/* Heading */
+h2 { 
+    text-align:center; 
+    color:#00c6a7; 
+    font-size:2rem; 
+    margin-bottom:30px; 
+    font-weight:700; 
+}
+
+/* Form labels & inputs */
+label { display:block; margin-top:20px; font-weight:600; color:#333; }
+input, select { 
+    width:100%; 
+    padding:14px; 
+    margin-top:8px; 
+    border-radius:12px; 
+    border:1px solid #ccc; 
+    font-size:1rem; 
+    transition: all 0.3s ease; 
+}
+input:hover, select:hover { border-color:#00c6a7; box-shadow:0 0 8px rgba(0,198,167,0.3); }
+input:focus, select:focus { border-color:#00c6a7; outline:none; box-shadow:0 0 12px rgba(0,198,167,0.4); }
+
+/* Button */
+button { 
+    margin-top:30px; 
+    width:100%; 
+    padding:16px; 
+    background: linear-gradient(135deg, #00c6a7, #2ed573); 
+    color:#fff; 
+    font-weight:600; 
+    font-size:1.1rem; 
+    border:none; 
+    border-radius:12px; 
+    cursor:pointer; 
+    transition: all 0.3s ease; 
+    box-shadow:0 8px 20px rgba(0,0,0,0.15); 
+}
+button:hover { 
+    transform: translateY(-3px); 
+    box-shadow:0 12px 25px rgba(0,0,0,0.2); 
+    background: linear-gradient(135deg, #2ed573, #00c6a7); 
+}
+
+/* Results Section */
+.results { margin-top:30px; display:grid; gap:20px; }
+/* Card style */
+.result-card { 
+    background:#f9f9f9; 
+    padding:20px; 
+    border-radius:15px; 
+    box-shadow:0 8px 25px rgba(0,0,0,0.1); 
+    transition:0.3s ease; 
+}
+.result-card:hover { transform: translateY(-3px); box-shadow:0 12px 30px rgba(0,0,0,0.15); }
+.result-card h3 { color:#00c6a7; margin-bottom:15px; font-size:1.3rem; font-weight:600; }
+.result-card ul { list-style-type: disc; padding-left:20px; color:#333; }
+.result-card ul li { margin-bottom:8px; }
+
+/* Probability bars */
+.bar-container { background:#d8f3dc; height:10px; border-radius:10px; overflow:hidden; margin-top:5px; }
+.bar { height:10px; border-radius:10px; background:#00c6a7; width:0%; transition:width 0.6s ease; }
+
+/* Responsive */
+@media(max-width:600px){
+  .container { padding:30px; }
+  button { padding:14px; font-size:1rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>EduNavia Recommendation</h2>
+  
+  <label>10th Score</label>
+  <input type="number" id="score_10th" min="0" max="100" placeholder="Enter 10th Score">
+
+  <label>12th Score</label>
+  <input type="number" id="score_12th" min="0" max="100" placeholder="Enter 12th Score">
+
+  <label>Entrance Score</label>
+  <input type="number" id="entrance_score" min="0" placeholder="Enter Entrance Score">
+
+  <label>Preferred Stream</label>
+  <select id="preferred_stream">
+    <option>Engineering</option>
+    <option>Science</option>
+    <option>Commerce</option>
+    <option>Arts</option>
+    <option>Law</option>
+    <option>Management</option>
+  </select>
+
+  <label>Preferred Location</label>
+  <select id="preferred_location">
+    <option>Delhi</option>
+    <option>Mumbai</option>
+    <option>Bangalore</option>
+    <option>Pune</option>
+    <option>Chennai</option>
+    <option>Hyderabad</option>
+  </select>
+
+  <label>Budget (k/year)</label>
+  <select id="budget_k_per_year">
+    <option>50</option><option>100</option><option>150</option><option>200</option><option>300</option>
+  </select>
+
+  <label>Course</label>
+  <select id="course">
+    <option>B.Tech</option>
+    <option>B.Sc</option>
+    <option>BBA</option>
+    <option>BA</option>
+    <option>B.Com</option>
+    <option>B.Arch</option>
+    <option>M.Tech</option>
+    <option>MBA</option>
+  </select>
+
+  <button onclick="getRecommendation()">Get Recommendation</button>
+
+  <div class="results" id="results"></div>
+</div>
+
+<script>
+async function getRecommendation() {
+  const data = {
+    score_10th: parseInt(document.getElementById("score_10th").value),
+    score_12th: parseInt(document.getElementById("score_12th").value),
+    entrance_score: parseInt(document.getElementById("entrance_score").value),
+    preferred_stream: document.getElementById("preferred_stream").value,
+    preferred_location: document.getElementById("preferred_location").value,
+    budget_k_per_year: parseInt(document.getElementById("budget_k_per_year").value),
+    course: document.getElementById("course").value
+  };
+
+  try {
+    const response = await fetch("https://edu-navia-backend.onrender.com/recommend", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data)
+});
+
+
+    if(!response.ok) {
+      const err = await response.json();
+      alert("Error: " + (err.error || response.statusText));
+      return;
+    }
+
+    const result = await response.json();
+    let html = "";
+    for (let key in result) {
+      html += `<div class="result-card"><h3>Top ${key}:</h3><ul>`;
+      result[key].forEach(([name, prob]) => {
+        html += `<li>${name} (${(prob*100).toFixed(2)}%)
+                    <div class="bar-container">
+                      <div class="bar" style="width:${(prob*100)}%"></div>
+                    </div>
+                 </li>`;
+      });
+      html += "</ul></div>";
+    }
+    document.getElementById("results").innerHTML = html;
+
+  } catch (err) {
+    alert("Error connecting to server: " + err);
+  }
+}
+</script>
+</body>
+</html>
