@@ -15,7 +15,7 @@ app = FastAPI(title="Edu Navia Backend")
 origins = [
     "http://127.0.0.1:5500",          # your local frontend
     "http://localhost:5500",           # alternative local
-    "https://edu-navia.netlify.app",   # your deployed frontend
+    "https://edunaviaa.netlify.app",   # your deployed frontend
 ]
 
 app.add_middleware(
@@ -91,4 +91,5 @@ async def recommend(request: Request):
     except Exception as e:
         print("Error:", e)
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
