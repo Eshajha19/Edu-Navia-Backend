@@ -1,58 +1,39 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse
 import pickle
 import pandas as pd
-import os
 
-# -------------------------
-# App setup
-# -------------------------
-app = FastAPI(title="Edu Navia Backend")
+app = FastAPI()
 
-# Allow CORS for local dev and deployed frontend
+# CORS setup
 origins = [
-    "http://127.0.0.1:5500",          # your local frontend
-    "http://localhost:5500",           # alternative local
-    "https://edunaviaa.netlify.app",   # your deployed frontend
+    "http://127.0.0.1:5500",   # local frontend
+    "http://localhost:5500",    # local alternative
+    "https://edu-navia.netlify.app",  # deployed frontend
+    "*"  # allow all origins
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # list all allowed origins
-    allow_credentials=True,  # allow cookies if needed
-    allow_methods=["*"],     # allow all methods: GET, POST, etc.
-    allow_headers=["*"],     # allow all headers
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# -------------------------
-# Load models & encoders
-# -------------------------
+# Load trained models and encoders
 with open("models.pkl", "rb") as f:
     models = pickle.load(f)
-
 with open("encoders.pkl", "rb") as f:
     encoders = pickle.load(f)
 
-# Serve static frontend files
-if not os.path.exists("static"):
-    os.makedirs("static")
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# -------------------------
-# Routes
-# -------------------------
-@app.get("/")
-def home():
-    return FileResponse("static/ai.html")
-
+# POST /recommend endpoint
 @app.post("/recommend")
 async def recommend(request: Request):
     try:
         data = await request.json()
-        # Build a row with defaults
+        # Fill missing columns with defaults
         row = {
             "score_10th": data.get("score_10th", 0),
             "score_12th": data.get("score_12th", 0),
@@ -91,5 +72,4 @@ async def recommend(request: Request):
     except Exception as e:
         print("Error:", e)
         return JSONResponse(content={"error": str(e)}, status_code=500)
-
 
