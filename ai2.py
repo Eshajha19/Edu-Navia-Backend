@@ -5,11 +5,13 @@ import pickle
 import pandas as pd
 
 app = FastAPI()
+
+# CORS settings
 origins = [
-    "http://127.0.0.1:5500/static/html",       # local frontend
-    "http://localhost:5500/static/html",        # local fallback
-    "https://edunaviaa.netlify.app",# deployed frontend
-    "*"                             # optional, allows all origins
+    "http://127.0.0.1:5500/static/html",
+    "http://localhost:5500/static/html",
+    "https://edunaviaa.netlify.app",
+    "*"
 ]
 
 app.add_middleware(
@@ -20,12 +22,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Load trained models and encoders
+# Load models and encoders
 with open("models.pkl", "rb") as f:
     models = pickle.load(f)
 with open("encoders.pkl", "rb") as f:
     encoders = pickle.load(f)
+
+# Root endpoint showing available routes
+@app.get("/")
+async def root():
+    routes = []
+    for route in app.routes:
+        if hasattr(route, "methods"):
+            routes.append({
+                "path": route.path,
+                "methods": list(route.methods)
+            })
+    return {"message": "EduNavia backend is working!", "available_routes": routes}
+
 
 # POST /recommend endpoint
 @app.post("/recommend")
