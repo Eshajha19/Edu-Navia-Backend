@@ -13,18 +13,17 @@ app = FastAPI(title="Edu Navia Backend")
 
 # Allow CORS for local dev and deployed frontend
 origins = [
-    "http://127.0.0.1:5500",       # local frontend
-    "http://localhost:5500",        # local frontend alternative
-    "https://edu-navia.netlify.app",  # deployed frontend
-    "*"  # allow all origins (optional, less secure)
+    "http://127.0.0.1:5500",          # your local frontend
+    "http://localhost:5500",           # alternative local
+    "https://edu-navia.netlify.app",   # your deployed frontend
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=origins,  # list all allowed origins
+    allow_credentials=True,  # allow cookies if needed
+    allow_methods=["*"],     # allow all methods: GET, POST, etc.
+    allow_headers=["*"],     # allow all headers
 )
 
 # -------------------------
@@ -92,3 +91,4 @@ async def recommend(request: Request):
     except Exception as e:
         print("Error:", e)
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
