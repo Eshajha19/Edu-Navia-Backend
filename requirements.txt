@@ -1,5 +1,9 @@
-fastapi
-uvicorn[standard]
+compress_pickle
 pandas
 numpy
 scikit-learn
+xgboost
+uvicorn
+fastapi  # if using FastAPI
+flask    # if using Flask
+
